@@ -1,0 +1,9 @@
+# Dependencies
+node_modules
+dist
+
+.parcel-cache
+.idea
+.vscode
+
+pnpm-lock.yaml
