@@ -2,7 +2,7 @@
 	"name": "parcel-resolver-corfu-config",
 	"description": "Parcel resolver for integrating Corfu configuration into Telestion frontend",
 	"license": "MIT",
-	"version": "0.0.0",
+	"version": "0.1.0",
 	"homepage": "https://telestion.wuespace.de/",
 	"source": "src/resolver.ts",
 	"main": "dist/resolver.js",

@@ -251,6 +251,10 @@ function getWidgetHeight(telecommands: TelecommandWidgetConfig[]): number {
 	return maxFields > 2 ? 2 : 1;
 }
 
+function capitalize(str: string): string {
+	return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export const APPS_DIR = 'apps';
 export const NODES_DIR = 'nodes';
 
@@ -265,7 +269,7 @@ export async function parse(path: string, inputFS: PluginOptions["inputFS"]): Pr
 
 	nodeWidgets.forEach(nw => {
 		const dashboard: Dashboard = {
-			title: nw.name,
+			title: capitalize(nw.name),
 			columns: 2,
 			rows: Math.ceil(nw.appConfigs.length / 2) || 1,
 			widgets: []
@@ -299,14 +303,3 @@ export function generate(dashboards: Dashboard[]): string {
 		2
 	)};`;
 }
-
-// console.log(JSON.stringify(dashboards[0], null, 2));
-
-export const INNOCUBE_DASHBOARDS = dashboards;
-
-/**
- * NOTES
- * gridRow and gridColumn
- * - allow both numbers and strings like full in the config
- * - full is gridColumn={'1 / -1'}
- */

@@ -5,18 +5,17 @@ import {generate, parse} from "./parser";
 export default new Resolver({
 	// eslint-disable-next-line @typescript-eslint/require-await
 	async resolve({ specifier , options}) {
-		if (specifier !== 'innocube-config') {
+		if (specifier !== 'corfu-config') {
 			return null;
 		}
 
-		const pathToConfig = '/home/jan/Development/ba/tmp/parcel-resolver-corfu-config/public/';
+		const pathToConfig = '/home/jan/Development/ba/tmp/parcel-resolver-corfu-config/public/precube-main';
 
 		const dashboards = await parse(pathToConfig, options.inputFS);
 
 		return {
-			filePath: path.join(__dirname, 'parser.js'),
-			code: generate(dashboards),
-			invalidateOnFileChange: [adcsConfig]
+			filePath: path.resolve(__dirname, 'parser.js'),
+			code: generate(dashboards)
 		};
 	}
 });
