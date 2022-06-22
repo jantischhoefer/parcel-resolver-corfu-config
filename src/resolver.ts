@@ -9,7 +9,7 @@ export default new Resolver({
 			return null;
 		}
 
-		const pathToConfig = '/home/jan/Development/ba/tmp/parcel-resolver-corfu-config/public/precube-main';
+		const pathToConfig = path.resolve(options.projectRoot, '../../on-board-software-master');
 
 		const dashboards = await parse(pathToConfig, options.inputFS);
 
