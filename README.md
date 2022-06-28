@@ -6,6 +6,13 @@ It relies on the Parcel plugin system and is using the Resolver functionality to
 create a virtual module that can be imported into a Telestion Client project.
 [Parcel Resolver](https://parceljs.org/plugin-system/resolver/).
 
+## Preparation
+
+The following tools are needed to build the parcel-resolver-corfu-config:
+
+- [NodeJS](https://nodejs.org/en/)
+- [pnpm](https://pnpm.io/installation)
+
 ## Setup
 
 Make sure you have [Verdaccio](https://verdaccio.org/) installed and running:
