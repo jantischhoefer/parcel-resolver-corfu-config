@@ -2,7 +2,7 @@ import * as yaml from 'js-yaml';
 import * as fs from 'fs';
 import { Dashboard, WidgetDefinition } from '@wuespace/telestion-client-types';
 import * as p from 'path';
-import { Resolver, ResolveFn } from '@parcel/types';
+import { Resolver } from '@parcel/types';
 import {
 	AppConfig,
 	AppWidgetConfig,
@@ -11,18 +11,14 @@ import {
 	TelecommandWidgetConfig
 } from './model';
 
+// Type of the input file system of Parcel
 type PluginOptions = Parameters<Resolver["resolve"]>[0]["options"];
 
 /**
- * Function that reads an InnoCube Node configuration file
+ * Function that reads a Corfu Node configuration file
  *
  * @param filename - path string to the Node config.yaml file
  * @param inputFS - the parcel resolver filesystem API
- *
- * @example
- * ```ts
- *
- * ```
  */
 async function getNodeConfig(filename: string, inputFS: PluginOptions["inputFS"]): Promise<NodeConfig | undefined> {
 	try {
@@ -54,11 +50,6 @@ async function getNodeConfig(filename: string, inputFS: PluginOptions["inputFS"]
  *
  * @param path - path string to the directory containing the Node configurations
  * @param inputFS - the parcel resolver filesystem API
- *
- * @example
- * ```ts
- *
- * ```
  */
 async function getAllNodeConfigs(path: string, inputFS: PluginOptions["inputFS"]): Promise<NodeConfig[]> {
 	const cfgs = [] as NodeConfig[];
@@ -80,16 +71,11 @@ async function getAllNodeConfigs(path: string, inputFS: PluginOptions["inputFS"]
 }
 
 /**
- * Function that parses all InnoCube Node configuration files in a directory
+ * Function that parses all Corfu Node configuration files in a directory
  *
  * @param path - path string to all Node configurations
  * @param appWidgets - all the available appWidgets
  * @param inputFS - the parcel resolver filesystem API
- *
- * @example
- * ```ts
- *
- * ```
  */
 async function getAllNodeWidgetConfigs(
 	path: string,
@@ -112,15 +98,10 @@ async function getAllNodeWidgetConfigs(
 }
 
 /**
- * Function that reads the InnoCube App configuration file
+ * Function that reads the Corfu App configuration file
  *
  * @param filename - path string to the App config.yaml file
  * @param inputFS - the parcel resolver filesystem API
- *
- * @example
- * ```ts
- *
- * ```
  */
 async function getAppConfig(filename: string, inputFS: PluginOptions["inputFS"]): Promise<AppConfig | undefined> {
 	try {
@@ -145,15 +126,10 @@ async function getAppConfig(filename: string, inputFS: PluginOptions["inputFS"])
 }
 
 /**
- * Function that reads all InnoCube App configuration files in a directory
+ * Function that reads all Corfu App configuration files in a directory
  *
  * @param path - path string to the App config.yaml files
  * @param inputFS - the parcel resolver filesystem API
- *
- * @example
- * ```ts
- *
- * ```
  */
 async function getAllAppConfigs(path: string, inputFS: PluginOptions["inputFS"]): Promise<AppConfig[]> {
 	const cfgs = [] as AppConfig[];
@@ -179,14 +155,9 @@ async function getAllAppConfigs(path: string, inputFS: PluginOptions["inputFS"])
 }
 
 /**
- * Function that parses the InnoCube App configuration file
+ * Function that parses the Corfu App configuration file
  *
  * @param appConfig - configuration file that has been read with {@link getAppConfig}
- *
- * @example
- * ```ts
- *
- * ```
  */
 async function getAppWidgetConfig(appConfig: AppConfig): Promise<AppWidgetConfig> {
 	const aw = {} as AppWidgetConfig;
@@ -198,15 +169,25 @@ async function getAppWidgetConfig(appConfig: AppConfig): Promise<AppWidgetConfig
 		const tc = {} as TelecommandWidgetConfig;
 		tc.name = key;
 		// eslint-disable-next-line no-restricted-syntax
-		for (const [, vvalues] of Object.entries(values)) {
-			if (typeof vvalues === 'number') {
-				tc.id = vvalues;
-			} else {
-				tc.fields = [];
-				// eslint-disable-next-line no-restricted-syntax
-				for (const [vvkey, vvvalues] of Object.entries(vvalues)) {
-					tc.fields.push({ name: vvkey, type: vvvalues });
+		for (let [vkey, vvalues] of Object.entries(values)) {
+			if (vkey === "id") {
+				if (typeof vvalues === "number") tc.id = vvalues;
+				continue;
+			}
+			if (vkey === "fields") {
+				if (vvalues !== null) {
+					tc.fields = [];
+					for (let [vvkey, vvvalues] of Object.entries(vvalues)) {
+						tc.fields.push({ name: vvkey, type: vvvalues });
+					}
 				}
+				continue;
+			}
+			if (vkey === "array") {
+				if (vvalues !== null) {
+					tc.array = vvalues as ArrayField;
+				}
+				continue;
 			}
 		}
 		aw.telecommands.push(tc);
@@ -215,15 +196,10 @@ async function getAppWidgetConfig(appConfig: AppConfig): Promise<AppWidgetConfig
 }
 
 /**
- * Function that parses all InnoCube App configuration files in a directory
+ * Function that parses all Corfu App configuration files in a directory
  *
  * @param path - path string to the directory containing all app config.yaml files
  * @param inputFS - the parcel resolver filesystem API
- *
- * @example
- * ```ts
- *
- * ```
  */
 async function getAllAppWidgetConfigs(path: string, inputFS: PluginOptions["inputFS"]): Promise<AppWidgetConfig[]> {
 	const cfgs = await getAllAppConfigs(path, inputFS);
@@ -239,10 +215,7 @@ async function getAllAppWidgetConfigs(path: string, inputFS: PluginOptions["inpu
  * Helper function that returns double the widget height if the telecommand
  * has more than two fields.
  *
- * @example
- * ```ts
- *
- * ```
+ * @param telecommands - include all fields to calculate a larger widget height
  */
 function getWidgetHeight(telecommands: TelecommandWidgetConfig[]): number {
 	const maxFields = Math.max(
@@ -251,6 +224,11 @@ function getWidgetHeight(telecommands: TelecommandWidgetConfig[]): number {
 	return maxFields > 2 ? 2 : 1;
 }
 
+/**
+ * Helper function to change the first character of a string to uppercase.
+ *
+ * @param str - string to capitalize
+ */
 function capitalize(str: string): string {
 	return str.charAt(0).toUpperCase() + str.slice(1);
 }
@@ -258,6 +236,13 @@ function capitalize(str: string): string {
 export const APPS_DIR = 'apps';
 export const NODES_DIR = 'nodes';
 
+/**
+ * Function that parses all configuration files found at a given path and
+ * turns them into a Dashboard.
+ *
+ * @param path - path string to the configuration folder
+ * @param inputFS - the parcel resolver file system API
+ */
 export async function parse(path: string, inputFS: PluginOptions["inputFS"]): Promise<Dashboard[]> {
 	const appDir = p.join(path, APPS_DIR);
 	const nodeDir = p.join(path, NODES_DIR);
@@ -279,7 +264,6 @@ export async function parse(path: string, inputFS: PluginOptions["inputFS"]): Pr
 				id: `corfu-config-${nw.id}-${ac.id}`,
 				widgetName: 'appWidget',
 				width: 1,
-				// if one of the widgets telecommands has more than 2 fields make the height bigger to prevent too much scrollbars
 				height: getWidgetHeight(ac.telecommands),
 				initialProps: {
 					nodeId: nw.id,
@@ -296,6 +280,12 @@ export async function parse(path: string, inputFS: PluginOptions["inputFS"]): Pr
 	return dashboards;
 }
 
+/**
+ * Function that generates the exported dashboard object code
+ * which will be used by the resolver.
+ *
+ * @param dashboards - the generated dashboard configuration object
+ */
 export function generate(dashboards: Dashboard[]): string {
 	return `export const corfuDashboards = ${JSON.stringify(
 		dashboards,
